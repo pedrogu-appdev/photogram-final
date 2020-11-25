@@ -1,0 +1,161 @@
+<div>
+  <div>
+    <h1>
+      Photo #<%= @the_photo.id %> details
+    </h1>
+
+    <dt>
+        Image
+      </dt>
+      <dd>
+        <img src= "<%= @the_photo.image %>">
+    </dd>
+
+    <dl>
+      <dt>
+        Caption
+      </dt>
+      <dd>
+        <%= @the_photo.caption %>
+      </dd>
+      
+      <dt>
+        Owner
+      </dt>
+      <dd>
+        <%= User.where(:id => @the_photo.owner_id).at(0).username %>
+      </dd>
+
+      <dt>
+        Posted
+      </dt>
+      <dd>
+        <%= time_ago_in_words(@the_photo.created_at) %> ago
+      </dd>
+ 
+      <dt>
+        Likes count
+      </dt>
+      <dd>
+        <%= Like.where(:photo_id => @the_photo.id).size() %>
+      </dd>
+
+      <dt>
+        Comments count
+      </dt>
+      <dd>
+        <%= @the_photo.comments_count %>
+      </dd>
+      
+      <dt>
+        Fans
+      </dt>
+      <dd>
+        <% @list_of_likes.each do |a_like| %>
+          
+          <%= User.where(:id => a_like.fan_id).at(0).username %>
+          
+        <% end %>
+      </dd>
+
+      <dt>
+        Add a fan
+      </dt>
+      <% if Like.where(:fan_id => @current_user.id).where(:photo_id => @the_photo.id).at(0) == nil %>
+        <dd>
+          <form action="/insert_like" method="post">
+            <input type="hidden" value="<%= @the_photo.id %>" name="query_photo_id">
+            <button>Like</button>
+          </form>
+        </dd>
+      <% else %>
+        <dd>
+          <a href="/delete_like/<%= Like.where(:fan_id => @current_user.id).where(:photo_id => @the_photo.id).at(0).id %>">Unlike</a>
+        </dd>
+      <% end %>
+
+      <dt>Edit photo</dt>
+        <dd>
+            <form action="/modify_photo/<%= @the_photo.id %>" method="post" enctype="multipart/form-data">
+              <label for="browser_image">Image URL</label>
+              <input id="browser_image" type="file" name="query_image" placeholder="Enter a URL for the image..." value="<%= @the_photo.image %>">
+            
+              <label for="browser_caption">Caption</label>
+              <textarea id="browser_caption" name="query_caption" placeholder="Enter a caption for the photo...">test1</textarea>
+            
+              <button>Update photo</button>
+            </form>
+
+        </dd>
+
+      <div>
+        <dt>Delete photo</dt>
+        <dd>
+          <a href="/delete_photo/<%= @the_photo.id %>">
+            Delete this photo
+          </a>
+        </dd>
+      </div>
+
+    </dl>
+  </div>
+</div>
+
+<hr>
+
+<h1>
+  Comments
+</h1>
+
+<table border="0">
+      <tr>
+        <th>
+          Commenter
+        </th>
+
+        <th>
+          Comment
+        </th>
+
+        <th>
+          Posted
+        </th>
+
+      </tr>
+
+      <% @list_of_comments.each do |a_comment| %>
+      <tr>
+        <td>
+          <%= User.where(:id => a_comment.author_id).at(0).username %>
+        </td>
+
+        <td>
+          <%= a_comment.body %>
+        </td>
+
+        <td>
+          <%= time_ago_in_words(a_comment.created_at) %> ago
+        </td>
+
+      </tr>
+      <% end %>
+    </table>
+
+<div>
+  <div>
+    <h2>
+      Add a new comment
+    </h2>
+
+    <form action="/insert_comment"  method="post" >
+        <input type="hidden" value= "<%= @the_photo.id %>" name="query_photo_id">
+
+        <label for="comment">Comment</label>
+        <textarea id="comment" name="query_body" placeholder="Enter a comment..."></textarea>
+
+      <button>Add comment</button>
+    </form>
+  </div>
+</div>
+
+<hr>
